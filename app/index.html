@@ -5,12 +5,20 @@
 <body>
 
 <button id="spin-button">Spin!</button>
-<div class="wheel-container">
+<!--
+<div class="wheel-container" >
+X Lorem ipsum set dolor...
+</div>
+-->
+
+<canvas class="wheel-container" id="spinner">	
+</canvas>
 
 <script type="text/javascript" src="./shlagly.js"></script>
 <script type="text/javascript">
 	var spin_button = document.getElementById("spin-button");
-	Shlagly.start(spin_button);
+	var spinner = document.getElementById("spinner");
+	Shlagly.start(spin_button, spinner);
 
 </script>
 </body>

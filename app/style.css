@@ -1,6 +1,9 @@
 .wheel-container{
 	background-color: red;
-	height: 800px;
-	width: 800px;
-	border-radius: 50%;
+	height: 400px;
+	width: 400px;
+	/*border-radius: 50%;
+	text-align: center;
+	vertical-align: middle;
+	margin: 0 auto;*/
 }
