@@ -1,113 +1,153 @@
+const btn: HTMLButtonElement = <HTMLButtonElement> document.getElementById('btn');
+const result: HTMLDivElement = <HTMLDivElement> document.getElementById('result');
+const canvas: HTMLCanvasElement = <HTMLCanvasElement> document.getElementById('canvas');
+const ctx: CanvasRenderingContext2D = <CanvasRenderingContext2D> canvas.getContext('2d');
 
-var canvas: any = document.getElementById('canvas');
-var ctx: any= canvas.getContext('2d');
+let data: Array<string>;
+let currentTick:number = 0;
+let speed: number = 0;
+let spinHandler: number;
+let brakeHandler: number;
 
+const COLORS: Array<string> =
+    ["#87a96b", "#EEE8AA", "#FFFACD", "#B0C4DE",
+     "#BDB76B", "#90EE90", "#F0FFF0", "#F4A460",
+     "#E0FFFF", "#B0E0E6", "#87CEEB", "#D8BFD8"];
 
-function drawBingoFn() {
-    let t = 0;
-    return () => drawFullCircle(['x', 'y', 'z'], t++);
+function getColor(i: number) {
+    return COLORS[i];
 }
 
-window.setInterval(drawBingoFn(), 1);
+function init(list: Array<string>) {
+    data = list;
+    btn.onclick = startSpinner;
+    clearResult();
+    drawFullCircle();
+}
 
-
-
-function drawFullCircle(data: Array<string>, t: number) {
+function drawFullCircle() {
     const numItems = data.length;
     const segmentSizeDegrees = 360 / numItems;
 
     for (let i=0; i < numItems; i++) {
-	let start = i * segmentSizeDegrees;
+	let start = currentTick + (i * segmentSizeDegrees);
 	let end = start + segmentSizeDegrees;
-	drawSegment(ctx, start, end, t);
+	let color = getColor(i);
+	drawSegment(ctx, data[i], start, end, color);
     }
+    drawTriangle();
 }
 
+function drawTriangle() {
+    ctx.beginPath();
+    ctx.moveTo(185, 20);
+    ctx.lineTo(215, 20);
+    ctx.lineTo(200, 45);
+    ctx.fillStyle = 'black';
+    ctx.fill();
+}
 
-
-function drawSegment(context: any, startAngle: number, endAngle: number, rotationAngle: number) {
+function drawSegment(context: CanvasRenderingContext2D, label: string, startAngle: number, endAngle: number, color: string) {
     const centerX = 200;
     const centerY = 200;
-    const start = degrees2radians(startAngle + rotationAngle);
-    const end = degrees2radians(endAngle + rotationAngle);
+    const start = degrees2radians(startAngle);
+    const mid = degrees2radians(startAngle + (0.5*(endAngle-startAngle)));
+    const end = degrees2radians(endAngle);
     const radius = 150;
     
     context.beginPath();
     context.strokeStyle = 'black';
     context.moveTo(centerX, centerY);
-    context.lineTo(centerX + (radius * Math.cos(start)), centerY + (radius * Math.sin(start)));
+    context.lineTo(centerX + (radius * Math.cos(start)),
+		   centerY + (radius * Math.sin(start)));
     context.arc(centerX, centerY, radius, start, end);
     context.moveTo(centerX, centerY);
-    context.lineTo(centerX + (radius * Math.cos(end)), centerY + (radius * Math.sin(end)));
-    context.fillStyle = degrees2color(endAngle);
+    context.lineTo(centerX + (radius * Math.cos(end)),
+		   centerY + (radius * Math.sin(end)));
+    context.fillStyle = color;
     context.fill();
     context.stroke();
+
+    drawLabel(context, label, mid);
 }
 
+function drawLabel(context: CanvasRenderingContext2D, label: string, degree: number) {
+    context.save();
+    context.translate(200,200);
+    context.rotate(degree + (Math.PI * 0.5));
+    context.fillStyle = 'black';
+    context.font = "11px Arial";
+    context.textAlign = 'center';
+    context.fillText(label, 0, -120);
+    context.translate(-200,-200);
+    context.restore();
 
-
+}
 
 function degrees2radians(d: number) {
     return ((d % 360) / 360.0) * 2 * Math.PI;
 }
 
-
-function degrees2color(d: number) {
-    //const x: number = Math.pow(255, 3) * d / 360;
-    const x: number = 255 * d / 360;
-    const s: string = x.toString(16);
-    
-    const color = '#' + leftPad(s, 6, '0');
-    console.log(color);
-    return color;
+function tick() {
+    currentTick = currentTick + speed;
+    drawFullCircle();
 }
 
+function decreaseSpeed() {
+    speed = speed - 1;
+    if (speed === 0) {
+	stopSpinner();
+    }
+}
 
+function setSpeed(x: number) {
+    speed = x;
+}
 
+function startSpinner() {
+    const randomSpinTime = 1500 * Math.random();
+    btn.disabled = true;
+    spinHandler = window.setInterval(tick, 30);
+    window.setTimeout(brakeSpinner, randomSpinTime);
+    setSpeed(20);
+    clearResult();
+}
 
+function stopSpinner() {
+    window.clearInterval(spinHandler);
+    window.clearInterval(brakeHandler);
+    btn.disabled = false;
+    showResult();
+}
 
-/* Leftpad FTW!! */
-var cache = [
-  '',
-  ' ',
-  '  ',
-  '   ',
-  '    ',
-  '     ',
-  '      ',
-  '       ',
-  '        ',
-  '         '
-];
+function brakeSpinner() {
+    brakeHandler = window.setInterval(decreaseSpeed, 100);
+}
 
-function leftPad (str: string, len: number, ch: any) {
-  // convert `str` to `string`
-  str = str + '';
-  // `len` is the `pad`'s length now
-  len = len - str.length;
-  // doesn't need to pad
-  if (len <= 0) return str;
-  // `ch` defaults to `' '`
-  if (!ch && ch !== 0) ch = ' ';
-  // convert `ch` to `string`
-  ch = ch + '';
-  // cache common use cases
-  if (ch === ' ' && len < 10) return cache[len] + str;
-  // `pad` starts with an empty string
-  var pad = '';
-  // loop
-  while (true) {
-    // add `ch` to `pad` if `len` is odd
-    if (len & 1) pad += ch;
-    // divide `len` by 2, ditch the remainder
-    len >>= 1;
-    // "double" the `ch` so this operation count grows logarithmically on `len`
-    // each time `ch` is "doubled", the `len` would need to be "doubled" too
-    // similar to finding a value in binary search tree, hence O(log(n))
-    if (len) ch += ch;
-    // `len` is 0, exit the loop
-    else break;
-  }
-  // pad `str`!
-  return pad + str;
+function clearResult() {
+    result.innerText = '';
+}
+
+function showResult() {
+    const responses: Array<string> = [
+	"You got ",
+	"OMG! It's ",
+	"LOL - you got ",
+	"I regret to inform that you got ",
+	"YEAH! Time for ",
+	"F$#k! ",
+	"How about some ",
+	"What are the odds! It's ",
+	"Can you believe it? ",
+	"You got lucky - it's "
+    ];
+
+    const randomResponse: string = responses[Math.floor(Math.random() * responses.length)];
+    result.innerText = randomResponse + getCurrentValue() + "!";
+}
+
+function getCurrentValue(): string {
+    const translatedTick = (currentTick + 90) % 360;
+    const x = data.length - 1 - Math.trunc(data.length * translatedTick/360);
+    return data[x];
 }
