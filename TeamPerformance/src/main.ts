@@ -3,27 +3,49 @@ type SpinnerElement = CanvasRenderingContext2D;
 class Wedge {
 	
 	private text : string;
-	private rot : number;
+	private color : string;
+	private start : number;
+	private stop : number;
 
-	constructor(txt: string, rot: number) {
+
+	constructor(txt: string, color: string, startAngle: number, stopAngle: number) {
 		this.text = txt;
-		this.rot = rot;
+		this.color = color;
+		this.start = startAngle;
+		this.stop = stopAngle;
+
 	}
 
-	draw(ctx : SpinnerElement, global_rot: number) {
+	public width() : number { return this.stop-this.start }
+
+	public draw(ctx : SpinnerElement, global_rot: number) {
 		ctx.save();
 		ctx.translate(200, 200);
-		ctx.rotate(this.rot + global_rot);
-		ctx.fillStyle = "black";
+		ctx.beginPath();
+		ctx.moveTo(0,0);
+		ctx.arc(0, 0, 200, global_rot+this.start, global_rot+this.stop);
+		ctx.fillStyle = this.color;
+		ctx.strokeStyle = "black";
+		ctx.fill();
+		ctx.stroke();
+		/* Drawing the text */
+		ctx.rotate(global_rot + this.textAngle());
+		ctx.fillStyle = "white";
 		ctx.textAlign = "center";
+		//ctx.strokeText(this.text, 150, 0);
 		ctx.fillText(this.text, 150, 0)
 		ctx.restore();
+	}
+
+	private textAngle() : number {
+		return this.start + (this.width()/2)
 	}
 }
 
 class Stopper {
 	private x: number;
 	private y: number;
+
 	constructor(x: number, y: number) {
 		this.x = x;
 		this.y = y;
@@ -31,11 +53,11 @@ class Stopper {
 
 	draw(ctx : CanvasRenderingContext2D) {
 		ctx.save();
-		/*ctx.translate(this.x, this.y);*/
+		ctx.translate(this.x, this.y);
 		ctx.beginPath();
-        ctx.moveTo(380, 200);
-        ctx.lineTo(450, 170);
-        ctx.lineTo(450, 230);
+        ctx.moveTo(0, 0);
+        ctx.lineTo(30, -20);
+        ctx.lineTo(30, 20);
         ctx.closePath();
         ctx.fillStyle = "green";
         ctx.fill();
@@ -44,77 +66,120 @@ class Stopper {
 }
 
 class Spinner {
-	public elem : SpinnerElement;
-	public rot: number;
+	private rot: number;
+
+	private speed : number;
 
 	public stopper : Stopper;
 	public wedges : Array<Wedge>;
 
-	constructor(e : SpinnerElement) {
-		this.elem = e;
+	constructor() {
 		this.rot = 0;
+		this.speed = 0;
 
-		this.stopper = new Stopper(200, 420);
+		this.stopper = new Stopper(420 ,200);
 		this.wedges = [];
 	}
 
 	public update = () => {
-		this.rot += 0.1;
-		if (this.rot > 2*Math.PI) this.rot -= 2*Math.PI;
+		this.rot += 0.1*this.speed;
+		while (this.rot > 2*Math.PI) this.rot -= 2*Math.PI;
+	}
 
-		this.draw(this.elem);
+	public isStopped() : boolean {
+		return this.speed == 0;
+	}
 
+	public startSpin = () => {
+		this.speed = 20;
+	}
 
+	public stop = () => {
+		const id = setInterval( () => {
+			this.speed -= 0.1;
+			if (this.speed <= 0) {
+				this.speed = 0;
+				clearInterval(id);
+			}
+		}, 10)
+		
 	}
 
 	public draw = (ctx: CanvasRenderingContext2D) => {
-		this.elem.fillStyle = "white";
-		this.elem.fillRect(0, 0, 500, 400)
-		this.elem.fillStyle = "red";
+		ctx.fillStyle = "white";
+		ctx.fillRect(0, 0, 500, 400)
+		ctx.fillStyle = "red";
 
-		this.elem.ellipse(200, 200, 200, 200, 0, 0, 360);
+		/*this.elem.ellipse(200, 200, 200, 200, 0, 0, 360);
 		this.elem.fill();
-
+		*/
 		this.stopper.draw(ctx);
-		for (var i = this.wedges.length - 1; i >= 0; i--) {
+		for (var i =  0; i < this.wedges.length; i++) {
 			this.wedges[i].draw(ctx, this.rot);
 		}
 	}
 }
 
-export default {
-	ctx : CanvasRenderingContext2D ,
-	spinner : Spinner,
+class App {
+	public ctx : CanvasRenderingContext2D;
+	public spinner : Spinner;
 
-    spin(ev : MouseEvent) {
-		console.log("Spinning...");
-		console.log("Done!");
-		console.log(this);
-		this.update(this.spinner)
-	},
+	constructor(ctx: CanvasRenderingContext2D) {
+		this.ctx = ctx;
+		this.spinner = new Spinner();
+
+
+		const choices = ["Spinner", "Pizza", "Code", "Beer", "Cola", "Fanta", "Burger", "Candy"];
+        let i : number = 0;
+        const wedgeWidth = (2*Math.PI)/choices.length;
+        let lastColour : string = "";
+        let firstColour : string = "";
+        for (let ch in choices) {
+        	let colour = "";
+        	do {
+        		colour = this.randomColour();
+        	} while (colour == lastColour || colour == firstColour);
+        	if (i == 0) {firstColour = colour;}
+        	lastColour = colour;
+
+        	this.spinner.wedges.push(new Wedge(choices[ch], colour, i*wedgeWidth, (i+1)*wedgeWidth))
+        	i++;
+        }
+
+        this.tick();
+	}
+
+	public spin() {
+		if (this.spinner.isStopped()) {
+			this.spinner.startSpin();
+		} else {
+			this.spinner.stop();
+		}
+	}
 
 	tick() {
 		const f = () => {
-			spinner.update(this.ctx);
+			spinner.update();
+			spinner.draw(this.ctx);
 		}
 		const spinner = this.spinner;
 		//requestAnimationFrame(f);
 		setInterval(function(){ f()}, 100);
-	},
+	}
+
+	private colours = ["red", "green", "blue", "silver", "black", "purple", "#aa5555", "#aaaa30"]
+	private randomColour() : string {
+		let id = Math.floor(Math.random()*this.colours.length);
+		return this.colours[id];
+	}
+}
+
+export default {
+
 
 	start(button : HTMLButtonElement, spinnerElem : HTMLCanvasElement) {
-        console.log("Hello World!");
-        this.ctx = spinnerElem.getContext("2d");
-        this.spinner = new Spinner(this.ctx);
-
-        this.spinner.wedges.push(new Wedge("Spinner", 0))
-		this.spinner.wedges.push(new Wedge("Pizza", Math.PI/3))
-		this.spinner.wedges.push(new Wedge("Beer", 2*Math.PI/3))
-		this.spinner.wedges.push(new Wedge("Beer", 3*Math.PI/3))
-		this.spinner.wedges.push(new Wedge("Beer", 4*Math.PI/3))
-		this.spinner.wedges.push(new Wedge("Beer", 5*Math.PI/3))
-
-		this.tick();
-        
+        const ctx = spinnerElem.getContext("2d");
+        const app = new App(ctx)
+        button.onclick = app.spin.bind(app);
     }
 }
