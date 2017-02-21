@@ -30,10 +30,10 @@ function drawFullCircle() {
     const segmentSizeDegrees = 360 / numItems;
 
     for (let i=0; i < numItems; i++) {
-	let start = currentTick + (i * segmentSizeDegrees);
-	let end = start + segmentSizeDegrees;
-	let color = getColor(i);
-	drawSegment(ctx, data[i], start, end, color);
+        let start = currentTick + (i * segmentSizeDegrees);
+        let end = start + segmentSizeDegrees;
+        let color = getColor(i);
+        drawSegment(ctx, data[i], start, end, color);
     }
     drawTriangle();
 }
@@ -54,16 +54,16 @@ function drawSegment(context: CanvasRenderingContext2D, label: string, startAngl
     const mid = degrees2radians(startAngle + (0.5*(endAngle-startAngle)));
     const end = degrees2radians(endAngle);
     const radius = 150;
-    
+
     context.beginPath();
     context.strokeStyle = 'black';
     context.moveTo(centerX, centerY);
     context.lineTo(centerX + (radius * Math.cos(start)),
-		   centerY + (radius * Math.sin(start)));
+                   centerY + (radius * Math.sin(start)));
     context.arc(centerX, centerY, radius, start, end);
     context.moveTo(centerX, centerY);
     context.lineTo(centerX + (radius * Math.cos(end)),
-		   centerY + (radius * Math.sin(end)));
+                   centerY + (radius * Math.sin(end)));
     context.fillStyle = color;
     context.fill();
     context.stroke();
@@ -96,7 +96,7 @@ function tick() {
 function decreaseSpeed() {
     speed = speed - 1;
     if (speed === 0) {
-	stopSpinner();
+        stopSpinner();
     }
 }
 
@@ -130,16 +130,16 @@ function clearResult() {
 
 function showResult() {
     const responses: Array<string> = [
-	"You got ",
-	"OMG! It's ",
-	"LOL - you got ",
-	"I regret to inform that you got ",
-	"YEAH! Time for ",
-	"F$#k! ",
-	"How about some ",
-	"What are the odds! It's ",
-	"Can you believe it? ",
-	"You got lucky - it's "
+        "You got ",
+        "OMG! It's ",
+        "LOL - you got ",
+        "I regret to inform that you got ",
+        "YEAH! Time for ",
+        "F$#k! ",
+        "How about some ",
+        "What are the odds! It's ",
+        "Can you believe it? ",
+        "You got lucky - it's "
     ];
 
     const randomResponse: string = responses[Math.floor(Math.random() * responses.length)];
