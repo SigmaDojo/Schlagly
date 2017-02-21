@@ -1,14 +1,22 @@
 type SpinnerElement = CanvasRenderingContext2D;
 
+class Vec2D {
+	constructor(public x, public y) {
+	}
+}
+
 class Wedge {
-	
+	private rad : number;
+	private position: Vec2D;
 	private text : string;
 	private color : string;
 	private start : number;
 	private stop : number;
 
 
-	constructor(txt: string, color: string, startAngle: number, stopAngle: number) {
+	constructor(radius: number, txt: string, color: string, startAngle: number, stopAngle: number) {
+		this.rad = radius;
+		this.position = new Vec2D(radius, radius)
 		this.text = txt;
 		this.color = color;
 		this.start = startAngle;
@@ -16,25 +24,33 @@ class Wedge {
 
 	}
 
+	public value() :string {
+		return this.text;
+	}
+
 	public width() : number { return this.stop-this.start }
 
 	public draw(ctx : SpinnerElement, global_rot: number) {
 		ctx.save();
-		ctx.translate(200, 200);
+		ctx.translate(this.position.x, this.position.y);
 		ctx.beginPath();
 		ctx.moveTo(0,0);
-		ctx.arc(0, 0, 200, global_rot+this.start, global_rot+this.stop);
+		ctx.arc(0, 0, this.rad, global_rot+this.start, global_rot+this.stop);
 		ctx.fillStyle = this.color;
 		ctx.strokeStyle = "black";
 		ctx.fill();
 		ctx.stroke();
+
 		/* Drawing the text */
 		ctx.rotate(global_rot + this.textAngle());
 		ctx.fillStyle = "white";
 		ctx.textAlign = "center";
-		//ctx.strokeText(this.text, 150, 0);
-		ctx.fillText(this.text, 150, 0)
+		ctx.fillText(this.text, this.rad*0.75, 0)
 		ctx.restore();
+	}
+
+	public inRange(rotation : number) : boolean {
+		return rotation >= this.start && rotation < this.stop;
 	}
 
 	private textAngle() : number {
@@ -42,43 +58,19 @@ class Wedge {
 	}
 }
 
-class Stopper {
-	private x: number;
-	private y: number;
-
-	constructor(x: number, y: number) {
-		this.x = x;
-		this.y = y;
-	}
-
-	draw(ctx : CanvasRenderingContext2D) {
-		ctx.save();
-		ctx.translate(this.x, this.y);
-		ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(30, -20);
-        ctx.lineTo(30, 20);
-        ctx.closePath();
-        ctx.fillStyle = "green";
-        ctx.fill();
-        ctx.restore();
-	}
-}
-
 class Spinner {
+	private pos : Vec2D;
+	private speed : number;
+	private radius : number;
 	private rot: number;
 
-	private speed : number;
-
-	public stopper : Stopper;
 	public wedges : Array<Wedge>;
 
-	constructor() {
+	constructor(radius: number) {
 		this.rot = 0;
 		this.speed = 0;
-
-		this.stopper = new Stopper(420 ,200);
 		this.wedges = [];
+		this.radius = radius;
 	}
 
 	public update = () => {
@@ -94,12 +86,19 @@ class Spinner {
 		this.speed = 20;
 	}
 
+	public currentValue() : string {
+		const checkrot = this.rot;
+		return ((this.wedges.filter((val) => val.inRange(checkrot))[0] || 
+			new Wedge(0, "none", "white", 0, 0))).value();
+	}
+
 	public stop = () => {
 		const id = setInterval( () => {
 			this.speed -= 0.1;
 			if (this.speed <= 0) {
 				this.speed = 0;
 				clearInterval(id);
+				console.log(this.currentValue());
 			}
 		}, 10)
 		
@@ -113,27 +112,41 @@ class Spinner {
 		/*this.elem.ellipse(200, 200, 200, 200, 0, 0, 360);
 		this.elem.fill();
 		*/
-		this.stopper.draw(ctx);
 		for (var i =  0; i < this.wedges.length; i++) {
 			this.wedges[i].draw(ctx, this.rot);
 		}
 	}
+
+	public addChoice(text: string, colour: string, start: number, stop: number) {
+		this.wedges.push(new Wedge(this.radius, text, colour, start, stop))
+	}
 }
 
 class App {
+	public canvas : HTMLCanvasElement;
 	public ctx : CanvasRenderingContext2D;
 	public spinner : Spinner;
 
-	constructor(ctx: CanvasRenderingContext2D) {
-		this.ctx = ctx;
-		this.spinner = new Spinner();
+	public height: number;
+	public width: number;
 
+	constructor(canvas : HTMLCanvasElement) {
+		this.canvas = canvas;
+		this.ctx = canvas.getContext("2d");
+		this.height = canvas.height;
+		this.width = canvas.width;
 
-		const choices = ["Spinner", "Pizza", "Code", "Beer", "Cola", "Fanta", "Burger", "Candy"];
+		const radius = Math.min(this.width, this.height)/2;
+
+		this.spinner = new Spinner(radius);
+
+		const choices = ["Spinner", "Pizza", "Code", "Beer", "Cola", "Fanta", "Burger", "Candy", "Chocklad", "Telefon"];
         let i : number = 0;
         const wedgeWidth = (2*Math.PI)/choices.length;
         let lastColour : string = "";
         let firstColour : string = "";
+
+
         for (let ch in choices) {
         	let colour = "";
         	do {
@@ -142,7 +155,8 @@ class App {
         	if (i == 0) {firstColour = colour;}
         	lastColour = colour;
 
-        	this.spinner.wedges.push(new Wedge(choices[ch], colour, i*wedgeWidth, (i+1)*wedgeWidth))
+        	this.spinner.addChoice(choices[ch], colour, i*wedgeWidth, (i+1)*wedgeWidth)
+
         	i++;
         }
 
@@ -176,10 +190,9 @@ class App {
 
 export default {
 
-
 	start(button : HTMLButtonElement, spinnerElem : HTMLCanvasElement) {
         const ctx = spinnerElem.getContext("2d");
-        const app = new App(ctx)
+        const app = new App(spinnerElem)
         button.onclick = app.spin.bind(app);
     }
 }
