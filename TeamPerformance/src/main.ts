@@ -7,7 +7,6 @@ class Vec2D {
 
 class Wedge {
 	private rad : number;
-	private position: Vec2D;
 	private text : string;
 	private color : string;
 	private start : number;
@@ -16,7 +15,6 @@ class Wedge {
 
 	constructor(radius: number, txt: string, color: string, startAngle: number, stopAngle: number) {
 		this.rad = radius;
-		this.position = new Vec2D(radius, radius)
 		this.text = txt;
 		this.color = color;
 		this.start = startAngle;
@@ -32,7 +30,6 @@ class Wedge {
 
 	public draw(ctx : SpinnerElement, global_rot: number) {
 		ctx.save();
-		ctx.translate(this.position.x, this.position.y);
 		ctx.beginPath();
 		ctx.moveTo(0,0);
 		ctx.arc(0, 0, this.rad, global_rot+this.start, global_rot+this.stop);
@@ -45,12 +42,14 @@ class Wedge {
 		ctx.rotate(global_rot + this.textAngle());
 		ctx.fillStyle = "white";
 		ctx.textAlign = "center";
+		ctx.font="30px Arial";
 		ctx.fillText(this.text, this.rad*0.75, 0)
 		ctx.restore();
 	}
 
 	public inRange(rotation : number) : boolean {
-		return rotation >= this.start && rotation < this.stop;
+
+		return (Math.sin(this.start+rotation) <= 0 && Math.sin(this.stop+rotation) > 0);
 	}
 
 	private textAngle() : number {
@@ -66,7 +65,8 @@ class Spinner {
 
 	public wedges : Array<Wedge>;
 
-	constructor(radius: number) {
+	constructor(pos: Vec2D, radius: number) {
+		this.pos = pos;
 		this.rot = 0;
 		this.speed = 0;
 		this.wedges = [];
@@ -82,39 +82,46 @@ class Spinner {
 		return this.speed == 0;
 	}
 
+	public getSpeed() : number {
+		return this.speed;
+	}
+
 	public startSpin = () => {
 		this.speed = 20;
 	}
 
 	public currentValue() : string {
-		const checkrot = this.rot;
+		let checkrot = this.rot
+		while (checkrot > 2*Math.PI) checkrot -= 2*Math.PI;
 		return ((this.wedges.filter((val) => val.inRange(checkrot))[0] || 
 			new Wedge(0, "none", "white", 0, 0))).value();
 	}
 
-	public stop = () => {
+	public stop = (callback : Function) => {
 		const id = setInterval( () => {
 			this.speed -= 0.1;
 			if (this.speed <= 0) {
 				this.speed = 0;
 				clearInterval(id);
-				console.log(this.currentValue());
+				callback();
 			}
 		}, 10)
 		
 	}
 
 	public draw = (ctx: CanvasRenderingContext2D) => {
-		ctx.fillStyle = "white";
-		ctx.fillRect(0, 0, 500, 400)
-		ctx.fillStyle = "red";
-
-		/*this.elem.ellipse(200, 200, 200, 200, 0, 0, 360);
-		this.elem.fill();
-		*/
+		ctx.save();
+		ctx.translate(this.pos.x, this.pos.y);
 		for (var i =  0; i < this.wedges.length; i++) {
 			this.wedges[i].draw(ctx, this.rot);
 		}
+
+		ctx.beginPath();
+		ctx.moveTo(0,0);
+		ctx.ellipse(0, 0, this.radius*0.1, this.radius*0.1, 0, 0, 2*Math.PI);
+		ctx.fillStyle = "#FFFF00";
+		ctx.fill();
+		ctx.restore();
 	}
 
 	public addChoice(text: string, colour: string, start: number, stop: number) {
@@ -124,21 +131,24 @@ class Spinner {
 
 class App {
 	public canvas : HTMLCanvasElement;
+	public controller : HTMLButtonElement;
+
 	public ctx : CanvasRenderingContext2D;
 	public spinner : Spinner;
 
 	public height: number;
 	public width: number;
 
-	constructor(canvas : HTMLCanvasElement) {
+	constructor(canvas : HTMLCanvasElement, controller : HTMLButtonElement) {
 		this.canvas = canvas;
+		this.controller = controller;
 		this.ctx = canvas.getContext("2d");
 		this.height = canvas.height;
 		this.width = canvas.width;
 
 		const radius = Math.min(this.width, this.height)/2;
 
-		this.spinner = new Spinner(radius);
+		this.spinner = new Spinner(new Vec2D(radius, radius), radius);
 
 		const choices = ["Spinner", "Pizza", "Code", "Beer", "Cola", "Fanta", "Burger", "Candy", "Chocklad", "Telefon"];
         let i : number = 0;
@@ -165,20 +175,40 @@ class App {
 
 	public spin() {
 		if (this.spinner.isStopped()) {
+			this.controller.className = "stop";
+			this.controller.innerText = "Stop";
 			this.spinner.startSpin();
 		} else {
-			this.spinner.stop();
+			this.controller.disabled = true;
+			this.controller.className = "waiting";
+			this.controller.innerText = "Ohh.. this is exciting...";
+			this.spinner.stop(() => {
+				this.controller.disabled = false;
+				this.controller.className = "start";
+				this.controller.innerText = "Spin";
+				console.log(this.spinner.currentValue());
+			});
 		}
 	}
 
 	tick() {
 		const f = () => {
 			spinner.update();
-			spinner.draw(this.ctx);
+			this.draw(this.ctx);
 		}
 		const spinner = this.spinner;
 		//requestAnimationFrame(f);
 		setInterval(function(){ f()}, 100);
+	}
+
+	public draw(ctx: CanvasRenderingContext2D) {
+		ctx.clearRect(0, 0, this.width, this.height);
+		this.spinner.draw(this.ctx);
+		if (this.spinner.getSpeed() > 5) {
+			this.canvas.style.filter = "blur(10px);";
+		} else {
+			this.canvas.style.filter = "";
+		}
 	}
 
 	private colours = ["red", "green", "blue", "silver", "black", "purple", "#aa5555", "#aaaa30"]
@@ -189,10 +219,10 @@ class App {
 }
 
 export default {
-
 	start(button : HTMLButtonElement, spinnerElem : HTMLCanvasElement) {
         const ctx = spinnerElem.getContext("2d");
-        const app = new App(spinnerElem)
-        button.onclick = app.spin.bind(app);
+        const app = new App(spinnerElem, button);
+
+    		button.onclick = app.spin.bind(app);
     }
 }

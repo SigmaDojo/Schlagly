@@ -1,17 +1,40 @@
-.wheel-container{
-	/*background-color: red;
-	height: 400px;
-	width: 400px;
-	border-radius: 50%;
-	text-align: center;
-	vertical-align: middle;
-	margin: 0 auto;*/
-	webkitFilter = "blur(3px)";
+div, button, canvas {
+	margin: 1rem;
 }
+
+button {
+	width: 100%;
+	/*max-width: 10rem;*/
+	margin: 0 auto;
+	height: 4em;
+	font: 2em arial;
+}
+
+button.stop {
+	background: rgba(220, 50, 50, 240);
+}
+
+button.start {
+	background: rgba(50, 220, 50, 240);
+}
+
+button[disabled=true] {
+	background: rgba(50, 50, 220, 240);
+}
+
+.wheel-container {
+	position: relative;
+}
+
+.wheel-container canvas {
+	filter: "blur(3px)";
+}
+
 
 .stopper {
 	position: absolute;
-    top: 359;
+    top: 365;
+    left: 780;
 }
 
 .stopper polygon {
