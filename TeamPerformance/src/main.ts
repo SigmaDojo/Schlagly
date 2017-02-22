@@ -150,7 +150,7 @@ class App {
 
 		this.spinner = new Spinner(new Vec2D(radius, radius), radius);
 
-		const choices = ["Spinner", "Pizza", "Code", "Beer", "Cola", "Fanta", "Burger", "Candy", "Chocklad", "Telefon"];
+		const choices = this.getChoices();
         let i : number = 0;
         const wedgeWidth = (2*Math.PI)/choices.length;
         let lastColour : string = "";
@@ -173,6 +173,12 @@ class App {
         this.tick();
 	}
 
+	private getChoices() : string[] {
+		return Array(20)
+			.fill()
+			.map( (_, i) => ("" + (i+1) ));
+	}
+
 	public spin() {
 		if (this.spinner.isStopped()) {
 			this.controller.className = "stop";
@@ -187,6 +193,7 @@ class App {
 				this.controller.className = "start";
 				this.controller.innerText = "Spin";
 				console.log(this.spinner.currentValue());
+				alert(this.spinner.currentValue());
 			});
 		}
 	}
@@ -204,8 +211,10 @@ class App {
 	public draw(ctx: CanvasRenderingContext2D) {
 		ctx.clearRect(0, 0, this.width, this.height);
 		this.spinner.draw(this.ctx);
-		if (this.spinner.getSpeed() > 5) {
-			this.canvas.style.filter = "blur(10px);";
+		if (this.spinner.getSpeed() > 2) {
+			const blur = Math.min(this.spinner.getSpeed(), 5
+				);
+			this.canvas.style.filter = `blur(${blur}px);`;
 		} else {
 			this.canvas.style.filter = "";
 		}
@@ -219,10 +228,10 @@ class App {
 }
 
 export default {
+
 	start(button : HTMLButtonElement, spinnerElem : HTMLCanvasElement) {
         const ctx = spinnerElem.getContext("2d");
         const app = new App(spinnerElem, button);
-
-    		button.onclick = app.spin.bind(app);
+    	button.onclick = app.spin.bind(app);
     }
 }
