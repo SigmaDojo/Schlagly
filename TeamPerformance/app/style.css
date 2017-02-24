@@ -3,13 +3,12 @@ div, button {
 }
 
 canvas {
-	height: 400;
-	width: 400;
+	width: 100%;
 }
 
 button {
 	width: 100%;
-	/*max-width: 10rem;*/
+	/*max-width: 100rem;*/
 	margin: 0 auto;
 	height: 4em;
 	font: 2em arial;
@@ -29,25 +28,33 @@ button[disabled=true] {
 
 .wheel-container {
 	position: relative;
+	width: 100%;
+	max-width: 900px;
+	margin: 0 auto;
+	overflow: hidden;
 }
 
 
 .stopper {
 	position: absolute;
-    top: 150;
-    left: 380;
+	transform: translateY(-50%);
+    top: 50%;
+    left: 90%;
+    width: 100;
 }
 
 .stopper polygon {
 	fill:lime;
 	stroke:green;
-	stroke-width:5;
+	stroke-width:2;
 }
 
 .center {
 	position: absolute;
-    top: 150;
-    left: 150;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 11%;
 }
 
 .center circle {
@@ -55,3 +62,5 @@ button[disabled=true] {
 	stroke: red;
 	stroke-width:2;
 }
+
+
