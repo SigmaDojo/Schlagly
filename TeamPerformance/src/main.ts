@@ -43,7 +43,7 @@ class Wedge {
 		ctx.fillStyle = "white";
 		ctx.textAlign = "center";
 		ctx.font="30px Arial";
-		ctx.fillText(this.text, this.rad*0.75, 0)
+		ctx.fillText(this.text, this.rad*0.75, 10)
 		ctx.restore();
 	}
 
