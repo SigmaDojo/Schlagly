@@ -2,18 +2,20 @@
 
 ## How to build:
 
-First of all, make sure you have TypeScript installed:
+First of all, compile the typescript files:
 
-    $ npm install -g typescript
+    $ npm run build
 
-Next, compile the TypeScript file (i.e. `src/bingo.ts`).
+...or, if you want automatic compilation when files are updated:
 
-    $ tsc
+    $ npm run build:watch
 
 This will produce `dist/bingo.js`.
 
 Now start the http server:
 
-    npm run http
+    $ npm start
 
 Browse to http://127.0.0.1:8080
+
+If you want to change the entries in the BingoWheel, edit `index.html`.
