@@ -1,6 +1,6 @@
 # TeamGrayhawk: schagly.io
 
-[bingo.jpeg](screenshot)
+[screenshot](bingo.jpeg)
 
 ## How to build:
 
