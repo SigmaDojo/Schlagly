@@ -1,5 +1,7 @@
 # TeamGrayhawk: schagly.io
 
+[bingo.jpeg]
+
 ## How to build:
 
 First of all, compile the typescript files:
