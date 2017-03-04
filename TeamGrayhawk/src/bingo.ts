@@ -9,16 +9,12 @@ let speed: number = 0;
 let spinHandler: number;
 let brakeHandler: number;
 
-const COLORS: Array<string> =
-    ["#87a96b", "#EEE8AA", "#FFFACD", "#B0C4DE",
-     "#BDB76B", "#90EE90", "#F0FFF0", "#F4A460",
-     "#E0FFFF", "#B0E0E6", "#87CEEB", "#D8BFD8"];
 
-function getColor(i: number) {
-    return COLORS[i];
+function getColor(hue: number) {
+    return `hsl(${hue}, 60%, 80%)`;
 }
 
-function init(list: Array<string>) {
+function initBingo(list: Array<string>) {
     data = list;
     btn.onclick = startSpinner;
     clearResult();
@@ -32,7 +28,7 @@ function drawFullCircle() {
     for (let i=0; i < numItems; i++) {
         let start = currentTick + (i * segmentSizeDegrees);
         let end = start + segmentSizeDegrees;
-        let color = getColor(i);
+        let color = getColor(start);
         drawSegment(ctx, data[i], start, end, color);
     }
     drawTriangle();
@@ -76,7 +72,7 @@ function drawLabel(context: CanvasRenderingContext2D, label: string, degree: num
     context.translate(200,200);
     context.rotate(degree + (Math.PI * 0.5));
     context.fillStyle = 'black';
-    context.font = "11px Arial";
+    context.font = "12px Comic Sans MS";
     context.textAlign = 'center';
     context.fillText(label, 0, -120);
     context.translate(-200,-200);
@@ -137,7 +133,7 @@ function showResult() {
         "YEAH! Time for ",
         "F$#k! ",
         "How about some ",
-        "What are the odds! It's ",
+        "What are the odds? It's ",
         "Can you believe it? ",
         "You got lucky - it's "
     ];

@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
     <title>schlagly.io</title>
@@ -8,20 +8,17 @@
   </head>
   
   <body>
-    <center>
-      <div id="app">
-	  <h1> Team Grayhawk's Amazing Wheel of Stuff </h1>
-	  <div> <button id="btn">Click to start</button> </div>
-	  <canvas id="canvas" width="400" height="400">	</canvas>
-	  <div id="result"> </div>
+    <div id="app">
+      <h1> The Amazing Wheel of Stuff </h1>
+      <div> <button id="btn">Click to start</button> </div>
+      <div id="wheel">
+	<canvas id="canvas" width="400" height="400">	</canvas>
+      </div>
+      <div id="result"> </div>
     </div>
-    </center>
+    <script type="text/javascript" src="dist/bingo.js"></script>
+    <script type="text/javascript">
+      initBingo( ['LISP', 'Haskell', 'Idris', 'Elm', 'Erlang'] );
+    </script>
   </body>
-
-  <script  type="text/javascript" src="dist/bingo.js"></script>
-  <script type="text/javascript" >
-    
-    init( ['LISP', 'Haskell', 'Idris', 'Elm', 'Erlang'] );
-    
-  </script>
-</html> 
+</html>

@@ -2,29 +2,36 @@
 
 body {
     color: #333;
-    font-family:"Lato","Helvetica Neue",Helvetica,sans-serif;
+    font-family:"Comic Sans MS";
 }
 
 #app {
-    margin: 12px;
+    max-width: 550px;
+    margin: 0px auto;
 }
 
 h1 {
     font-size: 26pt;
+    text-align: center;
 }
 
 #result {
     font-size: 18pt;
-    display: block;
+    margin: 10px auto;
+    text-align: center;
 }
 
 
 button {
+    display: block;
     padding: 6px;
     width: 150px;
     font-size: 12px;
+    margin: 0px auto;
+    font-family:"Comic Sans MS";
 }
 
-
-
-
+#wheel {
+    width: 400px;
+    margin: 10px auto;
+}
