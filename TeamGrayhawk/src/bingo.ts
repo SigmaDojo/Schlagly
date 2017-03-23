@@ -11,7 +11,7 @@ let brakeHandler: number;
 
 
 function getColor(hue: number) {
-    return `hsl(${hue}, 60%, 80%)`;
+    return `hsl(${hue - currentTick}, 60%, 80%)`;
 }
 
 function initBingo(list: Array<string>) {
