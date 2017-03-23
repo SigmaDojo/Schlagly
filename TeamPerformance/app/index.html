@@ -3,16 +3,24 @@
 	<link rel="stylesheet" href="style.css" media="screen" charset="utf-8">
 </head>
 <body>
-
-<button id="spin-button">Spin!</button>
-<!--
-<div class="wheel-container" >
-X Lorem ipsum set dolor...
+<div>
+	<button id="spin-button" class="start">Spin!</button>
 </div>
--->
 
-<canvas class="wheel-container" id="spinner" height=400 width=500>	
-</canvas>
+<div class="wheel-container">
+	<canvas id="spinner" height=800 width=800>	
+	</canvas>
+
+	<!-- TODO Draw stopper again as absolute positioned SVG. -->
+	<svg class="stopper" viewBox="0 0 100 100">>
+		<polygon points="0,50 100,20 100,80" />
+	</svg>
+
+	<svg class="center" viewBox="0 0 100 100">
+		<circle cx="50" cy="50" r="45"/>
+	</svg>
+</div>
+
 
 <script type="text/javascript" src="./shlagly.js"></script>
 <script type="text/javascript">

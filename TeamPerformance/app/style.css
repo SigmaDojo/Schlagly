@@ -1,9 +1,66 @@
-.wheel-container{
-	/*background-color: red;
-	height: 400px;
-	width: 400px;
-	border-radius: 50%;
-	text-align: center;
-	vertical-align: middle;
-	margin: 0 auto;*/
+div, button {
+	margin: 1rem;
 }
+
+canvas {
+	width: 100%;
+}
+
+button {
+	width: 100%;
+	/*max-width: 100rem;*/
+	margin: 0 auto;
+	height: 4em;
+	font: 2em arial;
+}
+
+button.stop {
+	background: rgba(220, 50, 50, 240);
+}
+
+button.start {
+	background: rgba(50, 220, 50, 240);
+}
+
+button[disabled=true] {
+	background: rgba(50, 50, 220, 240);
+}
+
+.wheel-container {
+	position: relative;
+	width: 100%;
+	max-width: 900px;
+	margin: 0 auto;
+	overflow: hidden;
+}
+
+
+.stopper {
+	position: absolute;
+	transform: translateY(-50%);
+    top: 50%;
+    left: 90%;
+    width: 100;
+}
+
+.stopper polygon {
+	fill:lime;
+	stroke:green;
+	stroke-width:2;
+}
+
+.center {
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 11%;
+}
+
+.center circle {
+	fill: yellow;
+	stroke: red;
+	stroke-width:2;
+}
+
+
