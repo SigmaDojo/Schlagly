@@ -4,7 +4,11 @@
 
 ## How to build:
 
-First of all, compile the typescript files:
+First, download and install dependencies:
+
+    $ npm install
+
+Next, compile the typescript files:
 
     $ npm run build
 
